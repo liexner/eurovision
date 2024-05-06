@@ -1,0 +1,93 @@
+﻿@page "/"
+@using eurovision.Models
+@using eurovision.Services
+@rendermode InteractiveServer
+@inject IEuroService euroService
+<PageTitle>Home</PageTitle>
+
+<div class="flex  flex-column gap-2 p-4 text-white bg-black">
+
+
+    <div class="grid place-items-center animate-bounce">
+        <button @onclick="Assign">ASSIGN</button>
+    </div>
+
+    <div class="flex flex-row gap-2 flex-wrap">
+
+        @foreach (var person in euroService.GetUsers().Result)
+        {
+            <div class="bg-gray-900 p-2 min-w-[200px]">
+                <div class="text-2xl" @onclick=" () => RemovePerson(person) ">
+                    @person.Name
+                </div>
+                <div class="">
+                    @foreach (var country in person.Countries)
+                    {
+                        <div class="flex flex-row  items-center gap-2">
+                            <img class="h-4 w-6" src="@country.Flag" />
+                            <div>
+                                @country.Name
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class=" bg-gray-900 p-2">
+            <div>
+
+                <form @onsubmit="AddNewPerson">
+                    <input @bind="NewPerson" placeholder="Namn!!!"  class="text-black" />
+                    <button class="" type="submit">➕</button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="flex flex-row flex-wrap gap-2 ">
+
+        @foreach (var country in euroService.GetCountries().Result)
+        {
+            <div class="flex flex-row bg-gray-900 items-center gap-2">
+                <img class="h-4 w-6" src="@country.Flag" />
+                <div >
+                    @country.Name
+                </div>
+            </div>
+        }
+
+    </div>
+
+</div>
+
+
+@code {
+    private string NewPerson { get; set; } = "";
+
+    public void AddNewPerson()
+    {
+        if(NewPerson == "")
+        {
+            return;
+        }
+        euroService.AddNewUser(NewPerson);
+        NewPerson = "";
+        StateHasChanged();
+    }
+    public void Assign()
+    {
+        euroService.AsignCountryToUser();
+        StateHasChanged();
+    }
+    public void RemovePerson(User user)
+    {
+        euroService.RemoveUser(user);
+        StateHasChanged();
+
+    }
+
+
+}
